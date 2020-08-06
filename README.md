@@ -8,31 +8,31 @@ Latest version at https://github.com/wardvanwanrooij/postcode2sql
 
 Run the supplied JAR file and provide the location of inspireadressen.zip and the location of the SQL output. You can download the latest inspireadressen from http://geodata.nationaalgeoregister.nl/inspireadressen/extract/inspireadressen.zip . The BAG data is supplemented with algorithmically generated postbus (PO box) data.
 
-$ wget http://geodata.nationaalgeoregister.nl/inspireadressen/extract/inspireadressen.zip
-[...]
-$ java -jar postcode2sql.jar inspireadressen.zip postcode.sql
-Jul 02, 2018 8:20:25 PM nu.ward.postcode2sql.Converter main
-INFO: started postcode2sql build 20180702
-Jul 02, 2018 8:20:25 PM nu.ward.postcode2sql.Converter read
-INFO: reading from inspireadressen.zip
-Jul 02, 2018 8:22:20 PM nu.ward.postcode2sql.Converter fixup
-INFO: fixing up intersecting data
-Jul 02, 2018 8:22:20 PM nu.ward.postcode2sql.Converter determineRange
-INFO: determining continuous ranges
-Jul 02, 2018 8:22:21 PM nu.ward.postcode2sql.Converter fillPOBox
-INFO: inserting post office boxes
-Jul 02, 2018 8:22:21 PM nu.ward.postcode2sql.Converter write
-INFO: writing to postcode.sql
-Jul 02, 2018 8:22:24 PM nu.ward.postcode2sql.Converter main
-INFO: finished
-$       
+	$ wget http://geodata.nationaalgeoregister.nl/inspireadressen/extract/inspireadressen.zip
+	[...]
+	$ java -jar postcode2sql.jar inspireadressen.zip postcode.sql
+	Jul 02, 2018 8:20:25 PM nu.ward.postcode2sql.Converter main
+	INFO: started postcode2sql build 20180702
+	Jul 02, 2018 8:20:25 PM nu.ward.postcode2sql.Converter read
+	INFO: reading from inspireadressen.zip
+	Jul 02, 2018 8:22:20 PM nu.ward.postcode2sql.Converter fixup
+	INFO: fixing up intersecting data
+	Jul 02, 2018 8:22:20 PM nu.ward.postcode2sql.Converter determineRange
+	INFO: determining continuous ranges
+	Jul 02, 2018 8:22:21 PM nu.ward.postcode2sql.Converter fillPOBox
+	INFO: inserting post office boxes
+	Jul 02, 2018 8:22:21 PM nu.ward.postcode2sql.Converter write
+	INFO: writing to postcode.sql
+	Jul 02, 2018 8:22:24 PM nu.ward.postcode2sql.Converter main
+	INFO: finished
+	$       
 
 ## Loading postcode SQL data
 
 Create a table reeks with this structure:
 
-CREATE TABLE reeks (id BIGSERIAL PRIMARY KEY, postcode_numeriek SMALLINT NOT NULL, postcode_letters CHAR(2), straat VARCHAR NOT NULL, plaats VARCHAR NOT NULL, huisnummer_start INT4, huisnummer_einde INT4, huisnummer_even BOOLEAN NOT NULL, huisnummer_oneven BOOLEAN NOT NULL);
-CREATE INDEX reeks_postcode_numeriek ON reeks(postcode_numeriek);
+	CREATE TABLE reeks (id BIGSERIAL PRIMARY KEY, postcode_numeriek SMALLINT NOT NULL, postcode_letters CHAR(2), straat VARCHAR NOT NULL, plaats VARCHAR NOT NULL, huisnummer_start INT4, huisnummer_einde INT4, huisnummer_even BOOLEAN NOT NULL, huisnummer_oneven BOOLEAN NOT NULL);
+	CREATE INDEX reeks_postcode_numeriek ON reeks(postcode_numeriek);
 
 More information in sql.txt
 
@@ -40,12 +40,12 @@ More information in sql.txt
 
 Use this query to selected the street and city, given the postcode 1313GV and housenumber 32.
 
-postcode=> SELECT * FROM reeks WHERE postcode_numeriek = 1313 AND (postcode_letters IS NULL OR postcode_letters = 'GV') AND (huisnummer_start IS NULL OR huisnummer_start <= 32) AND (huisnummer_einde IS NULL OR huisnummer_einde >= 32) AND huisnummer_even = (32 % 2 = 0) AND huisnummer_oneven = (32 % 2 = 1);
-  id   | postcode_numeriek | postcode_letters |   straat    | plaats | huisnummer_start | huisnummer_einde | huisnummer_even | huisnummer_oneven 
--------+-------------------+------------------+-------------+--------+------------------+------------------+-----------------+-------------------
- 30250 |              1313 | GV               | Sesamstraat | Almere |               28 |               58 | t               | f
+	postcode=> SELECT * FROM reeks WHERE postcode_numeriek = 1313 AND (postcode_letters IS NULL OR postcode_letters = 'GV') AND (huisnummer_start IS NULL OR huisnummer_start <= 32) AND (huisnummer_einde IS NULL OR huisnummer_einde >= 32) AND huisnummer_even = (32 % 2 = 0) AND huisnummer_oneven = (32 % 2 = 1);
+	  id   | postcode_numeriek | postcode_letters |   straat    | plaats | huisnummer_start | huisnummer_einde | huisnummer_even | huisnummer_oneven 
+	-------+-------------------+------------------+-------------+--------+------------------+------------------+-----------------+-------------------
+	 30250 |              1313 | GV               | Sesamstraat | Almere |               28 |               58 | t               | f
 	(1 row)
-postcode=> 
+	postcode=> 
 
 You must inlude the NULL checks to be able to match a postbus (PO box). Since the postbus data is generated, it may be incorrect. In particular, a given combination may validate as a postbus, but may in reality be non-existent.
 
