@@ -40,7 +40,7 @@ More information in sql.txt
 
 Use this query to selected the street and city, given the postcode 1313GV and housenumber 32.
 
-	postcode=> SELECT * FROM reeks WHERE postcode_numeriek = 1313 AND (postcode_letters IS NULL OR postcode_letters = 'GV') AND (huisnummer_start IS NULL OR huisnummer_start <= 32) AND (huisnummer_einde IS NULL OR huisnummer_einde >= 32) AND huisnummer_even = (32 % 2 = 0) AND huisnummer_oneven = (32 % 2 = 1);
+	postcode=> SELECT * FROM reeks WHERE postcode_numeriek = 1313 AND (postcode_letters IS NULL OR postcode_letters = 'GV') AND (huisnummer_start IS NULL OR huisnummer_start <= 32) AND (huisnummer_einde IS NULL OR huisnummer_einde >= 32) AND (huisnummer_even OR (32 % 2 = 1)) AND (huisnummer_oneven OR (32 % 2 = 0));
 	  id   | postcode_numeriek | postcode_letters |   straat    | plaats | huisnummer_start | huisnummer_einde | huisnummer_even | huisnummer_oneven 
 	-------+-------------------+------------------+-------------+--------+------------------+------------------+-----------------+-------------------
 	 30250 |              1313 | GV               | Sesamstraat | Almere |               28 |               58 | t               | f
