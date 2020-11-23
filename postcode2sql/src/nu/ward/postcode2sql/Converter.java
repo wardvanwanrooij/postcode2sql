@@ -16,6 +16,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -42,7 +43,7 @@ public class Converter {
 	private static final String OPENBARERUIMTE = "OpenbareRuimte";
 	private static final Object POSTCODE = "postcode";
 	private static final String URL = "https://github.com/wardvanwanrooij/postcode2sql";
-	private static final String VERSION = "postcode2sql build 20180702";
+	private static final String VERSION = "postcode2sql build 20201123";
 	private static final String WOONPLAATS = "Woonplaats";
 	private static final String WOONPLAATSNAAM = "woonplaatsNaam";
 	private static final Logger logger = Logger.getLogger(Converter.class.getName());
@@ -50,7 +51,7 @@ public class Converter {
 	private final HashMap<String, Adres> OPR = new HashMap<String, Adres>();
 	private final HashMap<String, String> WPL = new HashMap<String, String>();
 	
-	public boolean convert(String rootFile, String outputFile) {
+	public boolean convert(String rootFile, String outputFile, String tableName) {
 		String version;
 
 		NUM.clear();
@@ -60,7 +61,7 @@ public class Converter {
 		if (!fixup()) return false;
 		if (!determineRange()) return false;
 		if (!fillPOBox()) return false;
-		if (!write(version, outputFile)) return false;
+		if (!write(version, outputFile, tableName)) return false;
 		return true;
 	}
 
@@ -556,7 +557,7 @@ public class Converter {
 		return true;
 	}
 
-	private boolean write(String version, String outputFile) {
+	private boolean write(String version, String outputFile, String tableName) {
 		logger.info("writing to " + outputFile);
 		try (Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile), "UTF-8"))) {
 			List<String> list;
@@ -567,7 +568,7 @@ public class Converter {
 			out.write("--created with " + VERSION + "\n");
 			out.write("--" + URL + "\n");
 			out.write("--data version: " + version + "\n");
-			out.write("INSERT INTO reeks (postcode_numeriek, postcode_letters, straat, plaats, huisnummer_start, huisnummer_einde, huisnummer_even, huisnummer_oneven) VALUES \n");
+			out.write("INSERT INTO " + (tableName == null ? "reeks" : tableName) + " (postcode_numeriek, postcode_letters, straat, plaats, huisnummer_start, huisnummer_einde, huisnummer_even, huisnummer_oneven) VALUES \n");
 			for (String postcode: list) {
 				List<Straat> listStraat;
 
@@ -623,29 +624,34 @@ public class Converter {
 	}
 
 	public static void main(String[] args) {
-		String rootFile = null, outputFile = null;
+		String rootFile = null, outputFile = null, tableName = null;
+		int arg = 0;
 
-		if ((args.length == 3) && (args[0].equals("-debug"))) {
+		if ((args.length >= 0) && args[arg].equals("-debug")) {
+			arg++;
 			logger.setLevel(Level.FINEST);
-			rootFile = args[1];
-			outputFile = args[2];
-		} else if (args.length == 2) {
-			logger.setLevel(Level.INFO);
-			rootFile = args[0];
-			outputFile = args[1];
+			for (Handler handler : Logger.getLogger("").getHandlers()) handler.setLevel(logger.getLevel());
+			logger.fine("debug logging enabled");
+		}
+		if (args.length >= (2 + arg)) {
+			rootFile = args[arg++];
+			outputFile = args[arg++];
+		}
+		if (args.length >= (1 + arg)) {
+			tableName = args[arg++];
 		}
 		if (rootFile != null) {
 			boolean res;
 
 			logger.info("started " + VERSION);
-			res = new Converter().convert(rootFile, outputFile);
+			res = new Converter().convert(rootFile, outputFile, tableName);
 			logger.info("finished");
 			if (!res) System.exit(1);
 		} else {
 			//retrieve inspireadressen.zip from regularly updated http://geodata.nationaalgeoregister.nl/inspireadressen/extract/inspireadressen.zip
 			logger.info(VERSION);
 			logger.info(URL);
-			logger.info("syntax: postcode2sql [-debug] location-of-inspireadressen.zip output.sql");
+			logger.info("syntax: postcode2sql [-debug] location-of-inspireadressen.zip output.sql [tablename]");
 		}
 	}
 }
