@@ -1,29 +1,29 @@
 # postcode2sql
 
 ## Overview
-postcode2sql converts the Kadaster BAG open dataset to SQL for querying postcodes (zipcodes in The Netherlands). It doesn't require the user to import the complete Kadaster BAG dataset, instead it will parse the inspireadressen.zip (provided by the Kadaster) in memory and create a SQL file containing all postcode ranges. This can then be imported in a database and queried.
+postcode2sql converts the Kadaster BAG 2.0 open dataset to SQL for querying postcodes (zipcodes in The Netherlands). It doesn't require the user to import the complete Kadaster BAG 2.0 dataset, instead it will parse the lvbag-extract-nl.zip (provided by the Kadaster) in memory and create a SQL file containing all postcode ranges. This can then be imported in a database and queried.
 Latest version at https://github.com/wardvanwanrooij/postcode2sql
 
 ## Running postcode2sql
 
-Run the supplied JAR file and provide the location of inspireadressen.zip and the location of the SQL output. You can download the latest inspireadressen from http://geodata.nationaalgeoregister.nl/inspireadressen/extract/inspireadressen.zip . The BAG data is supplemented with algorithmically generated postbus (PO box) data.
+Run the supplied JAR file and provide the location of lvbag-extract-nl.zip and the location of the SQL output. You can download the latest lvbag-extract-nl.zip from https://service.pdok.nl/kadaster/adressen/atom/v1_0/downloads/lvbag-extract-nl.zip . The BAG data is supplemented with algorithmically generated postbus (PO box) data.
 
-	$ wget http://geodata.nationaalgeoregister.nl/inspireadressen/extract/inspireadressen.zip
+	$ wget https://service.pdok.nl/kadaster/adressen/atom/v1_0/downloads/lvbag-extract-nl.zip
 	[...]
-	$ java -jar postcode2sql.jar inspireadressen.zip postcode.sql
-	Jul 02, 2018 8:20:25 PM nu.ward.postcode2sql.Converter main
-	INFO: started postcode2sql build 20180702
-	Jul 02, 2018 8:20:25 PM nu.ward.postcode2sql.Converter read
-	INFO: reading from inspireadressen.zip
-	Jul 02, 2018 8:22:20 PM nu.ward.postcode2sql.Converter fixup
+	$ java -jar postcode2sql.jar lvbag-extract-nl.zip postcode.sql
+	Jun 01, 2022 8:20:25 PM nu.ward.postcode2sql.Converter main
+	INFO: started postcode2sql build 20220601
+	Jun 01, 2022 8:20:25 PM nu.ward.postcode2sql.Converter read
+	INFO: reading from lvbag-extract-nl.zip
+	Jun 01, 2022 8:22:20 PM nu.ward.postcode2sql.Converter fixup
 	INFO: fixing up intersecting data
-	Jul 02, 2018 8:22:20 PM nu.ward.postcode2sql.Converter determineRange
+	Jun 01, 2022 8:22:20 PM nu.ward.postcode2sql.Converter determineRange
 	INFO: determining continuous ranges
-	Jul 02, 2018 8:22:21 PM nu.ward.postcode2sql.Converter fillPOBox
+	Jun 01, 2022 8:22:21 PM nu.ward.postcode2sql.Converter fillPOBox
 	INFO: inserting post office boxes
-	Jul 02, 2018 8:22:21 PM nu.ward.postcode2sql.Converter write
+	Jun 01, 2022 8:22:21 PM nu.ward.postcode2sql.Converter write
 	INFO: writing to postcode.sql
-	Jul 02, 2018 8:22:24 PM nu.ward.postcode2sql.Converter main
+	Jun 01, 2022 8:22:24 PM nu.ward.postcode2sql.Converter main
 	INFO: finished
 	$       
 

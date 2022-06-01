@@ -30,22 +30,23 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
 public class Converter {
-	private static final String BEGINDATUMTIJDVAKGELDIGHEID = "begindatumTijdvakGeldigheid";
-	private static final String EINDDATUMTIJDVAKGELDIGHEID = "einddatumTijdvakGeldigheid";
-	private static final String GERELATEERDEOPENBARERUIMTE = "gerelateerdeOpenbareRuimte";
-	private static final String GERELATEERDEWOONPLAATS = "gerelateerdeWoonplaats";
-	private static final Object HUISNUMMER = "huisnummer";
+	private static final String BEGINGELDIGHEID = "beginGeldigheid";
+	private static final String EINDGELDIGHEID = "eindGeldigheid";
+	private static final String HUISNUMMER = "huisnummer";
 	private static final String IDENTIFICATIE = "identificatie";
+	private static final String LIGTAAN = "ligtAan";
+	private static final String LIGTIN = "ligtIn";
+	private static final String NAAM = "naam";
 	private static final String NAAMGEVINGUITGEGEVEN = "Naamgeving uitgegeven";
 	private static final String NUMMERAANDUIDING = "Nummeraanduiding";
-	private static final String NUMMERAANDUIDINGSTATUS = "nummeraanduidingStatus";
-	private static final String OPENBARERUIMTENAAM = "openbareRuimteNaam";
 	private static final String OPENBARERUIMTE = "OpenbareRuimte";
-	private static final Object POSTCODE = "postcode";
-	private static final String URL = "https://github.com/wardvanwanrooij/postcode2sql";
-	private static final String VERSION = "postcode2sql build 20201123";
+	private static final String OPENBARERUIMTEREF = "OpenbareRuimteRef";
+	private static final String POSTCODE = "postcode";
+	private static final String STATUS = "status";
 	private static final String WOONPLAATS = "Woonplaats";
-	private static final String WOONPLAATSNAAM = "woonplaatsNaam";
+	private static final String WOONPLAATSREF = "WoonplaatsRef";
+	private static final String URL = "https://github.com/wardvanwanrooij/postcode2sql";
+	private static final String VERSION = "postcode2sql build 20220601";
 	private static final Logger logger = Logger.getLogger(Converter.class.getName());
 	private final HashMap<String, HashMap<String, Straat>> NUM = new HashMap<String, HashMap<String, Straat>>();
 	private final HashMap<String, Adres> OPR = new HashMap<String, Adres>();
@@ -99,7 +100,6 @@ public class Converter {
 					}
 				}
 			}
-			zipFile.close();
 			if (modTime == null) {
 				return null;
 			} else {
@@ -123,7 +123,6 @@ public class Converter {
 				xmlsr.close();
 				zis.closeEntry();
 			}
-			zis.close();
 			return res;
 		} catch (IOException e) {
 		    logger.log(Level.SEVERE, "i/o error extracting embedded zip file", e);
@@ -155,7 +154,7 @@ public class Converter {
 						inRecord = true;
 					} else if (inRecord && localName.equals(IDENTIFICATIE)) {
 						inId = true;
-					} else if (inRecord && localName.equals(WOONPLAATSNAAM)) {
+					} else if (inRecord && localName.equals(NAAM)) {
 						inName = true;
 					}
 					break;
@@ -169,7 +168,7 @@ public class Converter {
 						inRecord = false;
 					} else if (inRecord && localName.equals(IDENTIFICATIE)) {
 						inId = false;
-					} else if (inRecord && localName.equals(WOONPLAATSNAAM)) {
+					} else if (inRecord && localName.equals(NAAM)) {
 						inName = false;
 					}
 					break;
@@ -204,11 +203,11 @@ public class Converter {
 						inRecord = true;
 					} else if (inRecord && (!inRelated) && localName.equals(IDENTIFICATIE)) {
 						inId = true;
-					} else if (inRecord && localName.equals(OPENBARERUIMTENAAM)) {
+					} else if (inRecord && localName.equals(NAAM)) {
 						inStreet = true;
-					} else if (inRecord && localName.equals(GERELATEERDEWOONPLAATS)) {
+					} else if (inRecord && localName.equals(LIGTIN)) {
 						inRelated = true;
-					} else if (inRelated && localName.equals(IDENTIFICATIE)) {
+					} else if (inRelated && localName.equals(WOONPLAATSREF)) {
 						inCity = true;
 					}
 					break;
@@ -229,11 +228,11 @@ public class Converter {
 						inRecord = false;
 					} else if (inRecord && (!inRelated)  && localName.equals(IDENTIFICATIE)) {
 						inId = false;
-					} else if (inRecord && localName.equals(OPENBARERUIMTENAAM)) {
+					} else if (inRecord && localName.equals(NAAM)) {
 						inStreet = false;
-					} else if (inRecord && localName.equals(GERELATEERDEWOONPLAATS)) {
+					} else if (inRecord && localName.equals(LIGTIN)) {
 						inRelated = false;
-					} else if (inRelated && localName.equals(IDENTIFICATIE)) {
+					} else if (inRelated && localName.equals(WOONPLAATSREF)) {
 						inCity = false;
 					}
 					break;
@@ -271,27 +270,27 @@ public class Converter {
 						number = null;
 						postcode = null;
 						inRecord = true;
-					} else if (inRecord && localName.equals(NUMMERAANDUIDINGSTATUS)) {
+					} else if (inRecord && localName.equals(STATUS)) {
 						inStatus = true;
-					} else if (inRecord && localName.equals(BEGINDATUMTIJDVAKGELDIGHEID)) {
+					} else if (inRecord && localName.equals(BEGINGELDIGHEID)) {
 						inStartDate = true;
-					} else if (inRecord && localName.equals(EINDDATUMTIJDVAKGELDIGHEID)) {
+					} else if (inRecord && localName.equals(EINDGELDIGHEID)) {
 						inEndDate = true;
 					} else if (inRecord && localName.equals(HUISNUMMER)) {
 						inNumber = true;
 					} else if (inRecord && localName.equals(POSTCODE)) {
 						inPostcode = true;
-					} else if (inRecord && localName.equals(GERELATEERDEOPENBARERUIMTE)) {
+					} else if (inRecord && localName.equals(LIGTAAN)) {
 						inRelated = true;
-					} else if (inRelated && localName.equals(IDENTIFICATIE)) {
+					} else if (inRelated && localName.equals(OPENBARERUIMTEREF)) {
 						inBuilding = true;
 					}
 					break;
 				case XMLEvent.CHARACTERS:
 					if (inStatus) status = xmlsr.getText();
 					if (inNumber) number = Integer.valueOf(xmlsr.getText());
-					if (inStartDate) startDate = Integer.valueOf(xmlsr.getText().substring(0, 8));
-					if (inEndDate) endDate = Integer.valueOf(xmlsr.getText().substring(0, 8));
+					if (inStartDate) startDate = constructDate(xmlsr.getText());
+					if (inEndDate) endDate = constructDate(xmlsr.getText());
 					if (inPostcode) postcode = xmlsr.getText();
 					if (inBuilding) building = xmlsr.getText();
 					break;
@@ -319,19 +318,19 @@ public class Converter {
 							}
 						}
 						inRecord = false;
-					} else if (inRecord && localName.equals(NUMMERAANDUIDINGSTATUS)) {
+					} else if (inRecord && localName.equals(STATUS)) {
 						inStatus = false;
-					} else if (inRecord && localName.equals(BEGINDATUMTIJDVAKGELDIGHEID)) {
+					} else if (inRecord && localName.equals(BEGINGELDIGHEID)) {
 						inStartDate = false;
-					} else if (inRecord && localName.equals(EINDDATUMTIJDVAKGELDIGHEID)) {
+					} else if (inRecord && localName.equals(EINDGELDIGHEID)) {
 						inEndDate = false;
 					} else if (inRecord && localName.equals(HUISNUMMER)) {
 						inNumber = false;
 					} else if (inRecord && localName.equals(POSTCODE)) {
 						inPostcode = false;
-					} else if (inRecord && localName.equals(GERELATEERDEOPENBARERUIMTE)) {
+					} else if (inRecord && localName.equals(LIGTAAN)) {
 						inRelated = false;
-					} else if (inRelated && localName.equals(IDENTIFICATIE)) {
+					} else if (inRelated && localName.equals(OPENBARERUIMTEREF)) {
 						inBuilding = false;
 					}
 					break;
@@ -486,6 +485,10 @@ public class Converter {
 		return true;
 	}
 
+	private int constructDate(String s) {
+		return Integer.valueOf(s.substring(0, 4) + s.substring(5, 7) + s.substring(8));
+	}
+
 	private boolean fillPOBox() {
 		//Vacant postcodes extracted from https://nl.wikipedia.org/wiki/Postcodes_in_Nederland#Overzicht_van_alle_postcodes
 		List<Integer> vacantPostcode = Arrays.asList(1280, 1290, 1370, 1450, 1480, 1490, 1570, 1580, 1590, 1690, 1880, 1890, 2090, 2780, 2790, 2880, 2890, 3090, 3210, 
@@ -627,7 +630,7 @@ public class Converter {
 		String rootFile = null, outputFile = null, tableName = null;
 		int arg = 0;
 
-		if ((args.length >= 0) && args[arg].equals("-debug")) {
+		if ((args.length >= 1) && args[arg].equals("-debug")) {
 			arg++;
 			logger.setLevel(Level.FINEST);
 			for (Handler handler : Logger.getLogger("").getHandlers()) handler.setLevel(logger.getLevel());
@@ -648,10 +651,10 @@ public class Converter {
 			logger.info("finished");
 			if (!res) System.exit(1);
 		} else {
-			//retrieve inspireadressen.zip from regularly updated http://geodata.nationaalgeoregister.nl/inspireadressen/extract/inspireadressen.zip
+			//retrieve lvbag-extract-nl.zip from regularly updated https://service.pdok.nl/kadaster/adressen/atom/v1_0/downloads/lvbag-extract-nl.zip
 			logger.info(VERSION);
 			logger.info(URL);
-			logger.info("syntax: postcode2sql [-debug] location-of-inspireadressen.zip output.sql [tablename]");
+			logger.info("syntax: postcode2sql [-debug] lvbag-extract-nl.zip output.sql [tablename]");
 		}
 	}
 }
