@@ -5,12 +5,17 @@ PostgreSQL:
 MySQL/MariaDB:
 	CREATE TABLE reeks (id BIGINT AUTO_INCREMENT PRIMARY KEY, postcode_numeriek SMALLINT NOT NULL, postcode_letters CHAR(2), straat VARCHAR(255) NOT NULL, plaats VARCHAR(255) NOT NULL, huisnummer_start INT4, huisnummer_einde INT4, huisnummer_even BOOLEAN NOT NULL, huisnummer_oneven BOOLEAN NOT NULL);
 	CREATE INDEX reeks_postcode_numeriek ON reeks(postcode_numeriek);
+SQLite:
+	CREATE TABLE reeks (id INTEGER PRIMARY KEY AUTOINCREMENT, postcode_numeriek SMALLINT NOT NULL, postcode_letters CHAR(2), straat VARCHAR NOT NULL, plaats VARCHAR NOT NULL, huisnummer_start INT4, huisnummer_einde INT4, huisnummer_even BOOLEAN NOT NULL, huisnummer_oneven BOOLEAN NOT NULL);
+	CREATE INDEX reeks_postcode_numeriek ON reeks(postcode_numeriek);
 2) Load reeks tables:
 PostgreSQL:
-	psql postcode < /tmp//postcode.sql
+	psql postcode < /tmp/postcode.sql
 MySQL/MariaDB:
 	make sure my.cnf has a large enough packet size defined, e.g. max_allowed_packet=50M
 	mysql postcode < /tmp/postcode.sql
+SQLite:
+	cat /tmp/postcode.sql | sed 's/,true/,1/g' | sed 's/,false/,0/g' | sqlite3 postcode.sqlite3
 3) Query reeks table:
 	SELECT * FROM reeks WHERE postcode_numeriek = 1313 AND (postcode_letters IS NULL OR postcode_letters = 'GV') AND (huisnummer_start IS NULL OR huisnummer_start <= 32) AND (huisnummer_einde IS NULL OR huisnummer_einde >= 32) AND (huisnummer_even OR (32 % 2 = 1)) AND (huisnummer_oneven OR (32 % 2 = 0));
 	  id   | postcode_numeriek | postcode_letters |   straat    | plaats | huisnummer_start | huisnummer_einde | huisnummer_even | huisnummer_oneven 
